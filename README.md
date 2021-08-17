@@ -7,6 +7,11 @@ Given a directory with several .dSYMs, finds the .dSYM for a given library name 
 dsymrename [libName] [UUID] --path [defaults to .]
 ```
 
+### Example:
+```
+dsymrename MyApp FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF path/to/your/dsyms/downloaded/from/appstoreconnect/
+```
+
 ### Installation:
 ```
 $ git clone https://github.com/schmittsfn/dsymrename
