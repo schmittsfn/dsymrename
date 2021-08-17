@@ -7,6 +7,14 @@ Finds the .dSYM for a given library name and replaces its internal UUID with the
 dsymrename [libName] [UUID] --path [defaults to .]
 ```
 
+### Installation:
+```
+$ git clone https://github.com/schmittsfn/dsymrename
+$ cd dsymrename
+$ swift build -c release
+$ cp -f dsymrename /usr/local/bin/dsymrename
+```
+
 ### Note:
 Used for cases where bitcode enabled builds on appstoreconnect provided incorrect dSYM UUIDs.
 
