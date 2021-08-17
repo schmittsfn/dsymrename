@@ -29,7 +29,7 @@ Used for cases where bitcode enabled builds on appstoreconnect provided incorrec
 3. Use the drop-down menu in the top left-hand corner to select the version you are interested in
 3. Once all the crashes for that version are downloaded, locate the crash you are interested in
 4. Find the line in the crash report you are interested in and which is not symbolicated
-5. Note down the binary image image
+5. Note down the binary image
 
 ![Screenshot 2021-08-17 at 15 39 36](https://user-images.githubusercontent.com/1940017/129736054-49245b74-359b-41e5-9859-acd9b27e07a5.png)
 
