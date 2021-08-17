@@ -29,14 +29,14 @@ func findFiles(inSubDirectory subDir: URL) -> [URL] {
     return files
 }
 
-func findAndReplace(libName: String,
+func findAndReplace(binName: String,
                     uuid: String,
                     subDir: URL,
                     files: [URL]) -> Result<(found: Bool, message: String?), Error> {
-    if let libUrl = files.first(where: { $0.lastPathComponent == libName }) {
+    if let binURL = files.first(where: { $0.lastPathComponent == binName }) {
         let uuidData = uuid.replacingOccurrences(of: "-", with: "").hexa.data
         let dsymUUID = subDir.lastPathComponent.dropLast(".dSYM".count)
-        print("Found dSYM for library '\(libName)' with UUID: \(dsymUUID)")
+        print("Found dSYM for binary image '\(binName)' with UUID: \(dsymUUID)")
         let dsym = dsymUUID
             .replacingOccurrences(of: "-", with: "")
             .lowercased()
@@ -44,11 +44,11 @@ func findAndReplace(libName: String,
         let dsymData = dsym.hexa.data
 
         do {
-            var data = try Data(contentsOf: libUrl)
+            var data = try Data(contentsOf: binURL)
             if let subRange = data.range(of: dsymData) {
                 print("Replacing internal UUID \(dsymUUID) with \(uuid.lowercased())")
                 data.replaceSubrange(subRange, with: uuidData)
-                try data.write(to: libUrl)
+                try data.write(to: binURL)
                 return .success((found: true, message: "Success.\n\nYour dsym's internal UUID has been replaced. If you are using a tool like Crashlytics, please re-upload your .dSYM"))
             } else if data.range(of: uuidData) != nil {
                 return .success((found: true, message: "The dSYM's internal UUID has already been replaced with \(uuid). Nothing to do.\n\nIf you are using a tool like Crashlytics, please re-upload your .dSYM"))
@@ -61,12 +61,12 @@ func findAndReplace(libName: String,
 }
 
 let main = command(
-    Argument<String>("libName", description: "The name of the library whose UUID you want to rename."),
+    Argument<String>("binName", description: "The name of the binary image whose UUID you want to rename."),
     Argument<String>("UUID", description: "The new UUID the dsym should have."),
     Option("path", default: FileManager.default.currentDirectoryPath, description: "The path to the directory that contains the .dSYM files.")
-    ) { libName, uuid, path in
+    ) { binName, uuid, path in
 
-    print("Library name provided: \(libName)\nLooking for .dSYM files at: \(path)")
+    print("Binary image name provided: \(binName)\nLooking for .dSYM files at: \(path)")
     let subDirs = getSubdirectories(path: path)
     guard subDirs.contains(where: { $0.lastPathComponent.lowercased().contains(".dsym") }) else {
         print("No .dSYM files found at: \(path)")
@@ -74,7 +74,7 @@ let main = command(
     }
     for subDir in subDirs {
         let files = findFiles(inSubDirectory: subDir)
-        let result = findAndReplace(libName: libName, uuid: uuid, subDir: subDir, files: files)
+        let result = findAndReplace(binName: binName, uuid: uuid, subDir: subDir, files: files)
         switch result {
         case .success(let value):
             if value.found {
@@ -87,7 +87,7 @@ let main = command(
             print(error)
         }
     }
-    print("No dSYM found for library '\(libName)'")
+    print("No dSYM found for binary image '\(binName)'")
 }
 
 main.run()
