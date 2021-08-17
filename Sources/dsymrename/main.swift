@@ -55,15 +55,19 @@ let main = command(
             do {
                 var data = try Data(contentsOf: libUrl)
                 if let subRange = data.range(of: dsymData) {
-                    print("Replacing \(dsymUUID) with \(uuid.lowercased())")
+                    print("Replacing internal UUID \(dsymUUID) with \(uuid.lowercased())")
                     data.replaceSubrange(subRange, with: uuidData)
                     try data.write(to: libUrl)
-                    print("Success.")
+                    print("Success.\n\nYour dsym's internal UUID has been replaced. If you are using a tool like Crashlytics, please re-upload your .dSYM")
+                    return
+                } else if data.range(of: uuidData) != nil {
+                    print("The dSYM's internal UUID has already been replaced with \(uuid). Nothing to do.\n\nIf you are using a tool like Crashlytics, please re-upload your .dSYM")
                     return
                 }
             } catch { print(error) }
         }
     }
+    print("No dSYM found for library '\(libName)'")
 }
 
 main.run()
