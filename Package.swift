@@ -9,12 +9,12 @@ let package = Package(
         .macOS(.v10_11)
     ],
     products: [
-        .executable(name: "dsymrename", targets: ["dsymrename"]),
+        .executable(name: "dsymrename", targets: ["dsymrename"])
     ],
     dependencies: [
-        .package(url: "https://github.com/kylef/Commander.git", from: "0.9.1"),
+        .package(url: "https://github.com/kylef/Commander.git", from: "0.9.1")
     ],
     targets: [
-        .target(name: "dsymrename", dependencies: ["Commander"]),
+        .target(name: "dsymrename", dependencies: ["Commander"])
     ]
 )

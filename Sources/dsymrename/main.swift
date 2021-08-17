@@ -14,6 +14,52 @@ func getSubdirectories(path: String) -> [URL] {
     }
 }
 
+func findFiles(inSubDirectory subDir: URL) -> [URL] {
+    var files = [URL]()
+    if let enumerator = FileManager.default.enumerator(at: subDir, includingPropertiesForKeys: [.isRegularFileKey], options: [.skipsHiddenFiles, .skipsPackageDescendants]) {
+        for case let fileURL as URL in enumerator {
+            do {
+                let fileAttributes = try fileURL.resourceValues(forKeys: [.isRegularFileKey])
+                if fileAttributes.isRegularFile == true {
+                    files.append(fileURL)
+                }
+            } catch { print(error, fileURL) }
+        }
+    }
+    return files
+}
+
+func findAndReplace(libName: String,
+                    uuid: String,
+                    subDir: URL,
+                    files: [URL]) -> Result<(found: Bool, message: String?), Error> {
+    if let libUrl = files.first(where: { $0.lastPathComponent == libName }) {
+        let uuidData = uuid.replacingOccurrences(of: "-", with: "").hexa.data
+        let dsymUUID = subDir.lastPathComponent.dropLast(".dSYM".count)
+        print("Found dSYM for library '\(libName)' with UUID: \(dsymUUID)")
+        let dsym = dsymUUID
+            .replacingOccurrences(of: "-", with: "")
+            .lowercased()
+
+        let dsymData = dsym.hexa.data
+
+        do {
+            var data = try Data(contentsOf: libUrl)
+            if let subRange = data.range(of: dsymData) {
+                print("Replacing internal UUID \(dsymUUID) with \(uuid.lowercased())")
+                data.replaceSubrange(subRange, with: uuidData)
+                try data.write(to: libUrl)
+                return .success((found: true, message: "Success.\n\nYour dsym's internal UUID has been replaced. If you are using a tool like Crashlytics, please re-upload your .dSYM"))
+            } else if data.range(of: uuidData) != nil {
+                return .success((found: true, message: "The dSYM's internal UUID has already been replaced with \(uuid). Nothing to do.\n\nIf you are using a tool like Crashlytics, please re-upload your .dSYM"))
+            }
+        } catch {
+            return .failure(error)
+        }
+    }
+    return .success((found: false, message: nil))
+}
+
 let main = command(
     Argument<String>("libName", description: "The name of the library whose UUID you want to rename."),
     Argument<String>("UUID", description: "The new UUID the dsym should have."),
@@ -26,45 +72,19 @@ let main = command(
         print("No .dSYM files found at: \(path)")
         return
     }
-
-    let uuidStr = uuid.replacingOccurrences(of: "-", with: "").lowercased()
-    let uuidData = uuidStr.hexa.data
-
     for subDir in subDirs {
-        let url = subDir
-        var files = [URL]()
-        if let enumerator = FileManager.default.enumerator(at: url, includingPropertiesForKeys: [.isRegularFileKey], options: [.skipsHiddenFiles, .skipsPackageDescendants]) {
-            for case let fileURL as URL in enumerator {
-                do {
-                    let fileAttributes = try fileURL.resourceValues(forKeys: [.isRegularFileKey])
-                    if fileAttributes.isRegularFile == true {
-                        files.append(fileURL)
-                    }
-                } catch { print(error, fileURL) }
-            }
-        }
-        if let libUrl = files.first(where: { $0.lastPathComponent == libName }) {
-            let dsymUUID = subDir.lastPathComponent.dropLast(".dSYM".count)
-            print("Found dSYM for library '\(libName)' with UUID: \(dsymUUID)")
-            let dsym = dsymUUID
-                .replacingOccurrences(of: "-", with: "")
-                .lowercased()
-
-            let dsymData = dsym.hexa.data
-
-            do {
-                var data = try Data(contentsOf: libUrl)
-                if let subRange = data.range(of: dsymData) {
-                    print("Replacing internal UUID \(dsymUUID) with \(uuid.lowercased())")
-                    data.replaceSubrange(subRange, with: uuidData)
-                    try data.write(to: libUrl)
-                    print("Success.\n\nYour dsym's internal UUID has been replaced. If you are using a tool like Crashlytics, please re-upload your .dSYM")
-                    return
-                } else if data.range(of: uuidData) != nil {
-                    print("The dSYM's internal UUID has already been replaced with \(uuid). Nothing to do.\n\nIf you are using a tool like Crashlytics, please re-upload your .dSYM")
-                    return
+        let files = findFiles(inSubDirectory: subDir)
+        let result = findAndReplace(libName: libName, uuid: uuid, subDir: subDir, files: files)
+        switch result {
+        case .success(let value):
+            if value.found {
+                if let text = value.message {
+                    print(text)
                 }
-            } catch { print(error) }
+                exit(0)
+            }
+        case .failure(let error):
+            print(error)
         }
     }
     print("No dSYM found for library '\(libName)'")
