@@ -1,6 +1,6 @@
 # dsymrename
 
-Finds the .dSYM for a given library name and replaces its internal UUID with the given UUID.
+Given a directory with several .dSYMs, finds the .dSYM for a given library name and replaces its internal UUID with the given UUID.
 
 ### Usage:
 ```
