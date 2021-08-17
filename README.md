@@ -12,7 +12,7 @@ dsymrename [libName] [UUID] --path [defaults to .]
 $ git clone https://github.com/schmittsfn/dsymrename
 $ cd dsymrename
 $ swift build -c release
-$ cp -f dsymrename /usr/local/bin/dsymrename
+$ cp -f .build/release/dsymrename /usr/local/bin/dsymrename
 ```
 
 ### Note:
