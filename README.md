@@ -4,8 +4,12 @@ Given a directory with several .dSYMs, finds the .dSYM for a given binary image 
 
 ### Usage:
 ```
-dsymrename [binName] [UUID] --path [defaults to .]
+dsymrename <binName> <UUID> [--path]
 ```
+
+Options:  
+-- path   
+&emsp;&emsp; defaults to .
 
 ### Example:
 ```
