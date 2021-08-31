@@ -25,7 +25,7 @@ $ cp -f .build/release/dsymrename /usr/local/bin/dsymrename
 ```
 
 ### Note:
-Used for cases where bitcode enabled builds on appstoreconnect provided incorrect dSYM UUIDs.
+Used for cases where single architecture bitcode enabled builds on appstoreconnect provided incorrect dSYM UUIDs.
 
 #### Finding the binary image name (binName):
 1. Open Xcode -> Window -> Organiser
