@@ -2,6 +2,8 @@
 
 Given a directory with several .dSYMs, finds the .dSYM for a given binary image name and replaces its internal UUID with the given UUID.
 
+Most probably used for cases where you have missing dSYMs on Firebase Crashlytics even though you uploaded the ones from appstoreconnect.
+
 ### Usage:
 ```
 dsymrename <binName> <UUID> [--path]
@@ -37,3 +39,6 @@ Used for cases where single architecture bitcode enabled builds on appstoreconne
 
 ![Screenshot 2021-08-17 at 15 39 36](https://user-images.githubusercontent.com/1940017/129736054-49245b74-359b-41e5-9859-acd9b27e07a5.png)
 
+### Thanks:
+
+Big thanks goes to Steve Dao for finding the actual fix: [link](https://medium.com/geekculture/how-to-fix-the-missing-dsyms-on-firebase-crashlytics-5f36d9db51d9)
