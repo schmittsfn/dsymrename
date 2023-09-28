@@ -1,4 +1,4 @@
-# dsymrename
+![logo](https://github.com/schmittsfn/dsymrename/assets/1940017/5aa362c5-fabd-4ace-b6a6-fccd84d3aaa5)
 
 Given a directory with several .dSYMs, finds the .dSYM for a given binary image name and replaces its internal UUID with the given UUID.
 
@@ -6,6 +6,7 @@ Most probably used for cases where you have missing dSYMs on Firebase Crashlytic
 
 ### Usage:
 ```
+
 dsymrename <binName> <UUID> [--path]
 ```
 
